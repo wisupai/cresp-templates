@@ -5,10 +5,8 @@ channels:
 dependencies:
   - python={{ cookiecutter.python_version }}
   - pip
-  - jupyterlab
-  - matplotlib-base
-  - numpy
-  - pandas
+  # Note: Additional conda dependencies will be added by the post-generation hook
+  # based on the user's selections
   - pip:
     - poetry
     # Additional packages will be managed by Poetry

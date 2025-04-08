@@ -1,20 +1,47 @@
 # Documentation
 
-This directory contains documentation for the project.
+This directory contains project documentation.
 
-## Contents
+## Directory Structure
 
-- Project documentation
-- Research papers
-- Technical notes
-- Methodology descriptions
-- Reports and visualizations
+- `api/` - API reference documentation (auto-generated)
+- `user/` - User guides and tutorials
+- `examples/` - Example usage and code snippets
+
+## Documentation Tools
+
+This project supports two popular documentation systems:
+
+### MkDocs (Recommended for most projects)
+
+[MkDocs](https://www.mkdocs.org/) with [Material theme](https://squidfunk.github.io/mkdocs-material/) provides a modern, responsive documentation site.
+
+To use MkDocs:
+```bash
+pip install mkdocs-material
+mkdocs serve  # Start local documentation server
+mkdocs build  # Build documentation site
+```
+
+### Sphinx (Recommended for API-heavy projects)
+
+[Sphinx](https://www.sphinx-doc.org/) is powerful for API documentation with automatic docstring extraction.
+
+To use Sphinx:
+```bash
+pip install sphinx sphinx-rtd-theme
+cd docs
+sphinx-quickstart  # Setup new Sphinx project
+sphinx-build -b html . _build/html  # Build documentation
+```
 
 ## Best Practices
 
-1. Use Markdown for simple documentation (like this file)
-2. Consider Jupyter notebooks for interactive documentation with code examples
-3. For more complex documentation, consider using Sphinx or MkDocs
+1. **Write as you code**: Update documentation as you develop
+2. **Examples**: Include working examples for important functions
+3. **Tutorials**: Create step-by-step tutorials for common workflows
+4. **API docs**: Use docstrings to document all public functions, classes, and modules
+5. **Versioning**: Document API changes between versions
 
 ## Building Documentation
 
@@ -24,10 +51,3 @@ To generate HTML documentation with Sphinx (if configured):
 cd docs
 make html
 ```
-
-## Resources
-
-- [Markdown Guide](https://www.markdownguide.org/)
-- [Sphinx Documentation](https://www.sphinx-doc.org/)
-- [MkDocs](https://www.mkdocs.org/)
-- [Scientific Writing Tips](https://www.nature.com/articles/d41586-019-02918-5) 

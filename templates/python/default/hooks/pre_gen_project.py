@@ -14,6 +14,10 @@ import os
 project_name = "{{ cookiecutter.project_name }}"
 project_slug = "{{ cookiecutter.project_slug }}"
 python_version = "{{ cookiecutter.python_version }}"
+include_jupyter = "{{ cookiecutter.include_jupyter }}" == "True"
+include_tests = "{{ cookiecutter.include_tests }}" == "True"
+include_visualization = "{{ cookiecutter.include_visualization }}" == "True"
+include_data_analysis = "{{ cookiecutter.include_data_analysis }}" == "True"
 
 # Validate project name
 if not project_name.strip():
@@ -33,6 +37,16 @@ try:
 except (ValueError, AttributeError):
     print(f"ERROR: Invalid Python version format: {python_version}. Expected format like '3.10'")
     sys.exit(1)
+
+# Validation for feature combinations
+if not include_data_analysis and include_visualization:
+    print("WARNING: You selected visualization without data analysis libraries. You may want to include both.")
+
+if include_tests and not include_data_analysis:
+    print("NOTE: You selected tests without data analysis libraries. Make sure your tests don't need NumPy/pandas.")
+
+if not include_jupyter and include_visualization:
+    print("NOTE: You selected visualization without Jupyter. Consider including Jupyter for interactive visualization.")
 
 # Check if we're inside a virtual environment
 if "VIRTUAL_ENV" in os.environ:

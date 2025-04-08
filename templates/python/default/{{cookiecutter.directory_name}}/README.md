@@ -25,45 +25,68 @@ poetry install
 ## Usage
 ```bash
 # Run Jupyter Lab for interactive development
+{% if cookiecutter.include_jupyter == 'True' %}
 jupyter lab
-
-# Run a Python script
-python -m src.main
 
 # Run a specific notebook
 jupyter notebook notebooks/example.ipynb
+{% else %}
+# Note: Jupyter was not included in this project
+# If needed, install with: pip install jupyterlab
+{% endif %}
+
+# Run a Python script
+python -m src.main
 ```
 
 ## Development
 ```bash
 # Run development tasks with Poetry
+{% if cookiecutter.include_tests == 'True' %}
 poetry run pytest           # Run tests
 poetry run pytest --cov=src # Run tests with coverage
+{% endif %}
 poetry run black .          # Format code
 poetry run isort .          # Sort imports
 ```
 
 ## Project Structure
 - `src/` - Source code for the project
+{% if cookiecutter.include_tests == 'True' %}
 - `tests/` - Test files using pytest
+{% endif %}
+{% if cookiecutter.include_jupyter == 'True' %}
 - `notebooks/` - Jupyter notebooks for exploration and visualization
+{% endif %}
+{% if cookiecutter.include_documentation == 'True' %}
 - `docs/` - Documentation and research paper drafts
+{% endif %}
 - `data/` - Data files (raw, processed, and results)
 
 ## Scientific Computing Features
 This template includes:
+{% if cookiecutter.include_data_analysis == 'True' %}
 - Numerical computing: NumPy, SciPy
 - Data analysis: Pandas
+{% endif %}
+{% if cookiecutter.include_ml_libs == 'True' %}
 - Machine learning: scikit-learn
+{% endif %}
+{% if cookiecutter.include_visualization == 'True' %}
 - Visualization: Matplotlib, Seaborn, Plotly
+{% endif %}
+{% if cookiecutter.include_jupyter == 'True' %}
 - Interactive computing: JupyterLab
+{% endif %}
 
 ## Reproducibility
 This project follows CRESP guidelines to ensure computational reproducibility:
 - Explicit environment specification (Conda + Poetry)
 - Version-controlled dependencies
 - Separation of code, data, and results
+{% if cookiecutter.include_tests == 'True' %}
 - Automated testing with pytest
+{% endif %}
 - Documentation of computational workflow
 
 ## Important Notes
