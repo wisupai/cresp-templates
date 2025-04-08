@@ -1,0 +1,12 @@
+name: %PROJECT_NAME%
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=%PYTHON_VERSION%
+  - pip
+  - jupyterlab
+  - pip:
+    - poetry
+    # Additional packages will be managed by Poetry
+    # See pyproject.toml for dependencies
