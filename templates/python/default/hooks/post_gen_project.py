@@ -67,6 +67,9 @@ def main():
     
     # Clean up optional components
     clean_optional_components()
+    
+    # Update cresp.toml with system information
+    update_cresp_toml()
 
     # Final instructions
     print_success("Project setup complete!")
@@ -319,6 +322,266 @@ def clean_optional_components():
             print_success("Adjusted main.py based on selected features")
         except Exception as e:
             print_warning(f"Could not adjust main.py: {e}")
+
+def write_toml_preserving_format(config, file_path):
+    """Write TOML file while preserving format and structure."""
+    try:
+        # First try to use tomli_w if available (better formatting)
+        try:
+            import tomli_w
+            with open(file_path, 'wb') as f:
+                tomli_w.dump(config, f)
+            return True
+        except ImportError:
+            pass
+            
+        # If tomli_w not available, use standard toml but with a custom approach to preserve format
+        import toml
+        import re
+        
+        # Get the original file content to analyze structure
+        if file_path.exists():
+            with open(file_path, 'r') as f:
+                original_content = f.read()
+        else:
+            original_content = ""
+            
+        # Get the raw toml output
+        toml_content = toml.dumps(config)
+        
+        # Try to preserve whitespace between major sections (simple approach)
+        if original_content:
+            # Find section headers in original content and preserve their spacing
+            section_headers = re.findall(r'(\n\n+)(\[.*?\])', original_content)
+            
+            # Replace in the new content
+            for spacing, header in section_headers:
+                # Escape header for regex
+                escaped_header = re.escape(header)
+                # Look for the header with any preceding whitespace and replace with proper spacing
+                toml_content = re.sub(r'\n+' + escaped_header, spacing + header, toml_content)
+                
+        # Write the modified content
+        with open(file_path, 'w') as f:
+            f.write(toml_content)
+            
+        return True
+    except Exception as e:
+        print_warning(f"Error preserving TOML format: {e}")
+        
+        # Fallback to standard toml dump
+        import toml
+        with open(file_path, 'w') as f:
+            toml.dump(config, f)
+        return False
+
+def update_cresp_toml():
+    """Update cresp.toml with system information."""
+    try:
+        import platform
+        import os
+        import toml
+        import json
+        import subprocess
+        from datetime import datetime
+        
+        cresp_toml_path = Path("cresp.toml")
+        if cresp_toml_path.exists():
+            print_info("Updating cresp.toml with system information...")
+            
+            # Parse existing cresp.toml
+            with open(cresp_toml_path, 'r') as f:
+                config = toml.load(f)
+            
+            # Add system information
+            system_info = {
+                "name": platform.system(),
+                "version": platform.version(),
+                "kernel": platform.release(),
+                "architecture": platform.machine(),
+                "locale": os.environ.get('LANG', 'en_US.UTF-8'),
+                "timezone": datetime.now().astimezone().tzname() or "UTC",
+            }
+            
+            # Update config with system information
+            if "experiment" in config and "environment" in config["experiment"] and "system" in config["experiment"]["environment"]:
+                config["experiment"]["environment"]["system"]["os"] = system_info
+            
+            # Update hardware information
+            if "experiment" in config and "environment" in config["experiment"] and "hardware" in config["experiment"]["environment"]:
+                # CPU info
+                cpu_info = {"model": "", "architecture": platform.machine(), "cores": 0, "threads": 0, "frequency": ""}
+                
+                try:
+                    # Try to get more detailed CPU info based on platform
+                    if platform.system() == "Linux":
+                        # On Linux, use lscpu
+                        try:
+                            cpu_data = subprocess.run(["lscpu"], capture_output=True, text=True)
+                            if cpu_data.returncode == 0:
+                                for line in cpu_data.stdout.splitlines():
+                                    if "Model name" in line:
+                                        cpu_info["model"] = line.split(":", 1)[1].strip()
+                                    elif "CPU(s)" == line.split(":", 1)[0].strip():
+                                        cpu_info["threads"] = int(line.split(":", 1)[1].strip())
+                                    elif "Core(s) per socket" in line:
+                                        cores_per_socket = int(line.split(":", 1)[1].strip())
+                                        cpu_info["cores"] = cores_per_socket
+                                    elif "CPU MHz" in line:
+                                        cpu_info["frequency"] = line.split(":", 1)[1].strip() + " MHz"
+                        except:
+                            pass
+                    elif platform.system() == "Darwin":  # macOS
+                        # On macOS, use sysctl
+                        try:
+                            model = subprocess.run(["sysctl", "-n", "machdep.cpu.brand_string"], 
+                                                 capture_output=True, text=True)
+                            if model.returncode == 0:
+                                cpu_info["model"] = model.stdout.strip()
+                            
+                            cores = subprocess.run(["sysctl", "-n", "hw.physicalcpu"], 
+                                                capture_output=True, text=True)
+                            if cores.returncode == 0:
+                                cpu_info["cores"] = int(cores.stdout.strip())
+                            
+                            threads = subprocess.run(["sysctl", "-n", "hw.logicalcpu"], 
+                                                  capture_output=True, text=True)
+                            if threads.returncode == 0:
+                                cpu_info["threads"] = int(threads.stdout.strip())
+                            
+                            # Frequency is not directly available, but we can approximate
+                            freq = subprocess.run(["sysctl", "-n", "hw.cpufrequency_max"], 
+                                               capture_output=True, text=True)
+                            if freq.returncode == 0:
+                                try:
+                                    freq_mhz = int(freq.stdout.strip()) / 1000000
+                                    cpu_info["frequency"] = f"{freq_mhz:.0f} MHz"
+                                except:
+                                    pass
+                        except:
+                            pass
+                    elif platform.system() == "Windows":
+                        # On Windows, use WMIC
+                        try:
+                            wmic_cpu = subprocess.run(["wmic", "cpu", "get", "Name,NumberOfCores,NumberOfLogicalProcessors,MaxClockSpeed", "/format:csv"], 
+                                                    capture_output=True, text=True)
+                            if wmic_cpu.returncode == 0:
+                                lines = wmic_cpu.stdout.strip().split('\n')
+                                if len(lines) >= 2:  # Skip header line
+                                    parts = lines[1].split(',')
+                                    if len(parts) >= 5:  # First part is Node
+                                        cpu_info["model"] = parts[1].strip()
+                                        cpu_info["cores"] = int(parts[2].strip())
+                                        cpu_info["threads"] = int(parts[3].strip())
+                                        cpu_info["frequency"] = f"{parts[4].strip()} MHz"
+                        except:
+                            pass
+                except Exception as e:
+                    print_warning(f"Could not get detailed CPU info: {e}")
+                
+                # Update CPU info
+                config["experiment"]["environment"]["hardware"]["cpu"] = cpu_info
+                
+                # Memory info
+                memory_info = {"size": "", "type": ""}
+                try:
+                    if platform.system() == "Linux":
+                        mem_data = subprocess.run(["free", "-h"], capture_output=True, text=True)
+                        if mem_data.returncode == 0:
+                            for line in mem_data.stdout.splitlines():
+                                if line.startswith("Mem:"):
+                                    memory_info["size"] = line.split()[1].strip()
+                    elif platform.system() == "Darwin":  # macOS
+                        mem_total = subprocess.run(["sysctl", "-n", "hw.memsize"], 
+                                                capture_output=True, text=True)
+                        if mem_total.returncode == 0:
+                            try:
+                                mem_gb = int(mem_total.stdout.strip()) / (1024 * 1024 * 1024)
+                                memory_info["size"] = f"{mem_gb:.1f} GB"
+                            except:
+                                pass
+                    elif platform.system() == "Windows":
+                        try:
+                            wmic_mem = subprocess.run(["wmic", "computersystem", "get", "TotalPhysicalMemory", "/format:csv"], 
+                                                    capture_output=True, text=True)
+                            if wmic_mem.returncode == 0:
+                                lines = wmic_mem.stdout.strip().split('\n')
+                                if len(lines) >= 2:
+                                    parts = lines[1].split(',')
+                                    if len(parts) >= 2:  # First part is Node
+                                        try:
+                                            mem_gb = int(parts[1].strip()) / (1024 * 1024 * 1024)
+                                            memory_info["size"] = f"{mem_gb:.1f} GB"
+                                        except:
+                                            pass
+                        except:
+                            pass
+                except Exception as e:
+                    print_warning(f"Could not get memory info: {e}")
+                
+                # Update memory info
+                config["experiment"]["environment"]["hardware"]["memory"] = memory_info
+                
+                # GPU info for CUDA projects
+                if "{{ cookiecutter.with_cuda }}" == "True":
+                    gpu_info = config["experiment"]["environment"]["hardware"]["gpu"]
+                    try:
+                        # Try to get GPU info using nvidia-smi
+                        gpu_data = subprocess.run(["nvidia-smi", "--query-gpu=name,memory.total,driver_version", "--format=csv,noheader"], 
+                                                capture_output=True, text=True)
+                        if gpu_data.returncode == 0:
+                            lines = gpu_data.stdout.strip().split('\n')
+                            if lines:
+                                parts = lines[0].split(',')
+                                if len(parts) >= 3:
+                                    gpu_info["default_model"]["model"] = parts[0].strip()
+                                    gpu_info["default_model"]["memory"] = parts[1].strip()
+                                    gpu_info["driver_version"] = parts[2].strip()
+                    except:
+                        print_warning("NVIDIA GPU info could not be retrieved. Is nvidia-smi installed?")
+                    
+                    # Update GPU info
+                    config["experiment"]["environment"]["hardware"]["gpu"] = gpu_info
+            
+            # Update software information
+            if "experiment" in config and "environment" in config["experiment"] and "software" in config["experiment"]["environment"]:
+                # Try to detect Python version
+                python_info = {
+                    "version": platform.python_version(),
+                }
+                config["experiment"]["environment"]["software"]["python"]["version"] = python_info["version"]
+
+                # Try to detect conda version if available
+                try:
+                    conda_process = subprocess.run(["conda", "--version"], capture_output=True, text=True)
+                    if conda_process.returncode == 0:
+                        conda_version = conda_process.stdout.strip().split()[-1]
+                        config["experiment"]["environment"]["software"]["conda"]["version"] = conda_version
+                except:
+                    pass
+                
+                # If using CUDA, try to detect CUDA version
+                if "{{ cookiecutter.with_cuda }}" == "True":
+                    try:
+                        # Try using nvcc
+                        nvcc_process = subprocess.run(["nvcc", "--version"], capture_output=True, text=True)
+                        if nvcc_process.returncode == 0:
+                            version_line = nvcc_process.stdout.strip().split('\n')[-1]
+                            if "release" in version_line.lower():
+                                version_parts = version_line.split(',')
+                                if len(version_parts) >= 2:
+                                    cuda_version = version_parts[1].strip().split()[-1]
+                                    if "cuda" in config["experiment"]["environment"]["software"]:
+                                        config["experiment"]["environment"]["software"]["cuda"]["version"] = cuda_version
+                    except:
+                        pass
+            
+            # Write updated config back to file using the format-preserving function
+            write_toml_preserving_format(config, cresp_toml_path)
+            
+            print_success("Updated cresp.toml with system information.")
+    except Exception as e:
+        print_warning(f"Could not update cresp.toml with system information: {e}")
 
 if __name__ == "__main__":
     main() 

@@ -1,0 +1,307 @@
+# CRESP Protocol Configuration
+# Documentation: https://cresp.resciencelab.ai
+# CRESP is an open-source protocol for reproducible research.
+
+###############################################################################
+# Experiment Basic Information
+###############################################################################
+
+# Protocol version
+cresp_version = "1.0"
+repo_url = ""
+doc_url = ""
+paper_url = ""
+
+[experiment]
+name = "{{ cookiecutter.project_name }}"
+description = "{{ cookiecutter.project_description }}"
+keywords = ["python", "data-science", "machine-learning"]
+
+[[experiment.authors]]
+name = "{{ cookiecutter.author_name }}"
+email = "{{ cookiecutter.author_email }}"
+affiliation = ""
+orcid = ""
+role = ""
+
+[[experiment.sponsors]]
+name = ""
+description = ""
+
+###############################################################################
+# Original Research Environment
+###############################################################################
+
+[experiment.environment]
+description = "The original environment where the research was conducted"
+
+[experiment.environment.hardware]
+cpu = { model = "", architecture = "", cores = 0, threads = 0, frequency = "", instructions_set = [] }
+memory = { size = "", type = "" }
+gpu = { default_model = { model = "", memory = "", compute_capability = "", cuda_cores = "" }, workers = [{ index = 0 }], interconnect = "", driver_version = "" }
+storage = { type = "" }
+network = { type = "", bandwidth = "", topology = "" }
+cluster_name = ""
+distributed = { world_size = 1, workers_per_node = 1, communication = "" }
+
+[experiment.environment.system]
+os = { name = "", version = "", kernel = "", architecture = "", locale = "", timezone = "" }
+packages = []
+
+[experiment.environment.system.limits]
+max_open_files = 0
+max_processes = 0
+stack_size = ""
+virtual_memory = ""
+
+[experiment.environment.software]
+conda = {
+    version = "",
+    channels = ["conda-forge", "pytorch", "bioconda"],
+    packages = [
+        { name = "", version = "", build = "", channel = "" }
+    ]
+}
+
+python = {
+    version = "{{ cookiecutter.python_version }}",
+    pip_config = {
+        index_url = "https://pypi.org/simple",
+        extra_index_url = []
+    }
+}
+
+{% if cookiecutter.with_cuda == "True" %}
+cuda = { version = "", toolkit = "" }
+cudnn = { version = "", toolkit = "" }
+{% endif %}
+container_platform = { name = "", version = "" }
+
+# Environment Variables Configuration
+[experiment.environment.variables]
+system = { LANG = "", LC_ALL = "", TZ = "" }
+
+[experiment.environment.variables.python]
+PYTHONPATH = [""]
+PYTHONHASHSEED = "0"
+PYTHONUNBUFFERED = "1"
+
+{% if cookiecutter.with_cuda == "True" %}
+[experiment.environment.variables.cuda]
+CUDA_HOME = ""
+LD_LIBRARY_PATH = [""]
+{% endif %}
+
+[experiment.environment.variables.experiment]
+EXPERIMENT_DATA_DIR = "data"
+EXPERIMENT_OUTPUT_DIR = "output"
+
+[experiment.environment.dependencies]
+type = "python"
+package_manager = { type = "poetry", config_file = "pyproject.toml", lock_file = "poetry.lock" }
+{% if cookiecutter.with_cuda == "True" %}
+[experiment.environment.dependencies.conda_fallback]
+enabled = true
+environment_file = "environment.yml"
+dev_environment_file = "environment-dev.yml"
+{% else %}
+[experiment.environment.dependencies.pip_fallback]
+enabled = true
+requirements_file = "requirements.txt"
+dev_requirements_file = "requirements-dev.txt"
+
+[experiment.environment.dependencies.uv_fallback]
+enabled = true
+requirements_file = "requirements.txt"
+dev_requirements_file = "requirements-dev.txt"
+{% endif %}
+
+[[datasets]]
+name = ""
+source = ""
+sha256 = ""
+description = ""
+record_count = 0
+format = ""
+license = ""
+size_bytes = 0
+
+[data_preprocessing]
+script = ""
+description = ""
+expected_output_size_bytes = 0
+
+###############################################################################
+# Environment Verification
+###############################################################################
+
+[environment_verification]
+description = "Procedures and scripts to verify the environment is correctly set up"
+verify_script = "verify_env.py"
+success_criteria = "All dependency versions match requirements"
+{% if cookiecutter.with_cuda == "True" %}
+cuda_test_command = "python -c \"import torch; print('CUDA available:', torch.cuda.is_available())\""
+memory_test_command = "python -c \"import torch; print('GPU Memory:', torch.cuda.get_device_properties(0).total_memory)\""
+
+[environment_verification.checks]
+python_version = "python --version | grep -q '{{ cookiecutter.python_version }}'"
+gpu_availability = "python -c \"import torch; assert torch.cuda.is_available(), 'GPU not available'\""
+torch_version = "python -c \"import torch; assert torch.__version__.startswith('2.'), 'Wrong PyTorch version'\""
+{% else %}
+[environment_verification.checks]
+python_version = "python --version | grep -q '{{ cookiecutter.python_version }}'"
+numpy_version = "python -c \"import numpy; assert numpy.__version__.startswith('1.'), 'Wrong NumPy version'\""
+{% endif %}
+
+###############################################################################
+# Experiment Execution Configuration
+###############################################################################
+
+[execution]
+verify_script = "verify_env.py"
+main_command = "python main.py"
+expected_duration = ""
+log_file = "experiment.log"
+expected_outcomes = ""
+
+[execution.steps]
+preprocessing = ""
+analysis = ""
+visualization = ""
+
+[execution.resource_monitoring]
+enabled = true
+memory_utilization_expected = ""
+{% if cookiecutter.with_cuda == "True" %}
+gpu_utilization_expected = ""
+{% endif %}
+cpu_utilization_expected = ""
+logging_interval = "10s"
+{% if cookiecutter.with_cuda == "True" %}
+monitoring_command = "nvidia-smi --query-gpu=utilization.gpu,utilization.memory,memory.used --format=csv -l 10"
+{% else %}
+monitoring_command = "top -b -n 1 | head -n 20"
+{% endif %}
+
+###############################################################################
+# Cloud Deployment Information
+###############################################################################
+
+[cloud_deployment]
+description = "Configuration for deploying the experiment in cloud environments"
+
+[cloud_deployment.aws]
+instance_type = ""
+ami = ""
+region = ""
+startup_script = ""
+
+[cloud_deployment.gcp]
+machine_type = ""
+{% if cookiecutter.with_cuda == "True" %}
+gpu_type = ""
+gpu_count = ""
+{% endif %}
+zone = ""
+startup_script = ""
+
+[cloud_deployment.azure]
+vm_size = ""
+location = ""
+startup_script = ""
+
+###############################################################################
+# Troubleshooting Information
+###############################################################################
+
+[troubleshooting]
+description = "Common issues and their solutions"
+
+[[troubleshooting.common_issues]]
+issue = ""
+solution = ""
+detection = ""
+
+{% if cookiecutter.with_cuda == "True" %}
+[[troubleshooting.common_issues]]
+issue = ""
+solution = ""
+detection = ""
+{% endif %}
+
+[[troubleshooting.common_issues]]
+issue = ""
+solution = ""
+detection = ""
+
+###############################################################################
+# Reproduction Configuration
+###############################################################################
+
+[reproduction]
+description = "AI-generated reproduction configurations based on original experiment environment"
+
+###############################################################################
+# Container-based Reproduction
+###############################################################################
+
+[reproduction.container]
+description = "Container-based reproduction configuration for portable execution"
+
+[reproduction.container.docker]
+base_image = ""
+provided_image = ""
+image_url = ""
+registry = ""
+dockerfile_path = ""
+build_command = ""
+run_command = ""
+image_size = ""
+
+[reproduction.container.singularity]
+provided_image = ""
+image_url = ""
+definition_file = ""
+build_command = ""
+run_command = ""
+image_size = ""
+
+[reproduction.cloud]
+description = "Cloud VM-based reproduction configuration for RescienceLab platform"
+
+# Cloud VM hardware requirements
+[reproduction.cloud.vm]
+hardware = {
+    cpu = { model = "", cores = 0, threads = 0, frequency = "" },
+    memory = { size = "", type = "" }{% if cookiecutter.with_cuda == "True" %},
+    gpu = { model = "", memory = "", count = 1 }{% endif %},
+    storage = { size = "", type = "" }
+}
+
+[reproduction.cloud.network]
+bandwidth = ""
+latency = ""
+topology = ""
+
+[reproduction.cloud.software]
+os = { name = "", version = "" }
+python = { version = "{{ cookiecutter.python_version }}", interpreter = "python{{ cookiecutter.python_version }}" }
+{% if cookiecutter.with_cuda == "True" %}
+cuda = { version = "", toolkit = "" }
+cudnn = { version = "", toolkit = "" }
+{% endif %}
+
+[reproduction.cloud.setup]
+init_script = ""
+verify_script = ""
+monitoring_script = ""
+
+[reproduction.cloud.resource_monitoring]
+enabled = true
+metrics = ["cpu_usage", "memory_usage"{% if cookiecutter.with_cuda == "True" %}, "gpu_usage"{% endif %}, "disk_io", "network_io"]
+logging_interval = "10s"
+alert_thresholds = {
+    cpu_usage = "",
+    memory_usage = ""{% if cookiecutter.with_cuda == "True" %},
+    gpu_memory = ""{% endif %}
+} 
