@@ -42,6 +42,30 @@ poetry.lock
 # Jupyter Notebook
 .ipynb_checkpoints
 
+# Data files (consider what to track/ignore)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/results/*
+!data/results/.gitkeep
+*.csv
+*.xlsx
+*.xls
+*.parquet
+*.feather
+
+# Large files
+*.hdf5
+*.h5
+*.pickle
+*.pkl
+*.npy
+*.npz
+
+# Documentation builds
+docs/_build/
+
 # Distribution / packaging
 .Python
 build/

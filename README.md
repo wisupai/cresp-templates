@@ -21,6 +21,23 @@ The templates ensure that projects follow best practices for reproducibility, in
 
 - [`python`](templates/python/) - Templates for Python projects
   - Default template uses Conda for environment management and Poetry for package management
+  - Also supports usage directly with Cookiecutter
+
+## Multiple Usage Methods
+
+CRESP templates can be used in multiple ways:
+
+1. **Via CRESP Tool**: The primary way these templates are meant to be used
+   ```bash
+   pip install cresp
+   cresp new python my-project
+   ```
+
+2. **Direct Cookiecutter Usage**: Our Python template also works as a standalone Cookiecutter template
+   ```bash
+   pip install cookiecutter
+   cookiecutter https://github.com/wisupai/cresp-templates --directory="templates/python/default"
+   ```
 
 ## For Template Developers
 

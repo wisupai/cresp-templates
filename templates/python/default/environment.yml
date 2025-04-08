@@ -6,6 +6,9 @@ dependencies:
   - python=%PYTHON_VERSION%
   - pip
   - jupyterlab
+  - matplotlib-base
+  - numpy
+  - pandas
   - pip:
     - poetry
     # Additional packages will be managed by Poetry

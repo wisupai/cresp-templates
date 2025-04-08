@@ -1,0 +1,16 @@
+{
+    "project_name": "My Scientific Project",
+    "project_slug": "{{ cookiecutter.project_name|lower|replace(' ', '_')|replace('-', '_') }}",
+    "directory_name": "{{ cookiecutter.project_slug }}",
+    "author_name": "Your Name",
+    "author_email": "your.email@example.com",
+    "project_description": "A scientific computing project created with CRESP",
+    "python_version": "3.10",
+    "with_cuda": false,
+    "include_ml_libs": true,
+    "open_source_license": ["MIT", "BSD-3-Clause", "GPL-3.0", "Apache-2.0", "None"],
+    "_copy_without_render": [
+        "*.html",
+        "*.ipynb"
+    ]
+} 
