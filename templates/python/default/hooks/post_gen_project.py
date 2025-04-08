@@ -89,11 +89,16 @@ def update_pyproject_toml():
         # ML libraries
         if include_ml_libs:
             print_info("Including machine learning libraries")
-            dependencies.extend([
-                'scikit-learn = "^1.2.0"',
-                'tensorflow = "^2.12.0"' if with_cuda else 'scikit-learn = "^1.2.0"',
-            ])
-        
+            if with_cuda:
+                dependencies.extend([
+                    'scikit-learn = "^1.2.0"',
+                    'tensorflow = "^2.12.0"',
+                ])
+            else:
+                dependencies.extend([
+                    'scikit-learn = "^1.2.0"',
+                ])
+                
         # Visualization libraries
         if include_visualization:
             print_info("Including visualization libraries")
