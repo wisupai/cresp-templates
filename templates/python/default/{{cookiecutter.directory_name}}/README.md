@@ -1,4 +1,4 @@
-# %PROJECT_NAME%
+# {{ cookiecutter.project_name }}
 
 ## Project Overview
 This is a CRESP-based Python project for scientific computing and research. This project follows the CRESP (Computational Research Environment Standardization Protocol) for reproducible science.
@@ -12,7 +12,7 @@ This is a CRESP-based Python project for scientific computing and research. This
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd %PROJECT_NAME%
+cd {{ cookiecutter.project_slug }}
 
 # Create and activate Conda environment
 conda env create -f environment.yml
@@ -88,4 +88,4 @@ cookiecutter https://github.com/wisupai/cresp-templates --directory="templates/p
 - [CRESP Documentation](https://github.com/wisupai/CRESP-DOCS)
 
 ## License
-MIT 
+{{ cookiecutter.open_source_license }} 

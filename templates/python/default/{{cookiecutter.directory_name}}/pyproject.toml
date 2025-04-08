@@ -3,15 +3,15 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "%PROJECT_NAME%"
+name = "{{ cookiecutter.project_slug }}"
 version = "0.1.0"
-description = "A Python project created with CRESP"
-authors = ["Your Name <your.email@example.com>"]
+description = "{{ cookiecutter.project_description }}"
+authors = ["{{ cookiecutter.author_name }} <{{ cookiecutter.author_email }}>"]
 readme = "README.md"
 packages = [{include = "src"}]
 
 [tool.poetry.dependencies]
-python = ">=%VERSION%,<4.0"
+python = ">={{ cookiecutter.python_version }},<4.0"
 numpy = "^1.24.0"
 pandas = "^2.0.0"
 matplotlib = "^3.7.0"
@@ -32,7 +32,7 @@ nbconvert = "^7.2.0"
 
 [tool.black]
 line-length = 88
-target-version = ['py%PY_VERSION%']
+target-version = ['py{{ cookiecutter.python_version.replace(".", "") }}']
 include = '\.pyi?$'
 
 [tool.isort]

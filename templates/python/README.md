@@ -52,14 +52,19 @@ cookiecutter https://github.com/wisupai/cresp-templates --directory="templates/p
 
 ## For Template Developers
 
-### Placeholders
+### Cookiecutter Variables
 
-The templates use the following placeholders that will be replaced by CRESP:
+The templates use the following Cookiecutter variables:
 
-- `%PROJECT_NAME%` - The name of the project
-- `%VERSION%` - The Python version
-- `%PY_VERSION%` - The Python version without dots (e.g., 310 for 3.10)
-- `PROJECT_NAME` - Alternative format for project name (used in some files)
+- `{{ cookiecutter.project_name }}` - The name of the project (e.g., "My Scientific Project")
+- `{{ cookiecutter.project_slug }}` - The slug version of the project name (e.g., "my_scientific_project")
+- `{{ cookiecutter.directory_name }}` - The directory name (usually same as project_slug)
+- `{{ cookiecutter.author_name }}` - The author's name
+- `{{ cookiecutter.author_email }}` - The author's email
+- `{{ cookiecutter.project_description }}` - Brief description of the project
+- `{{ cookiecutter.python_version }}` - The Python version (e.g., "3.10")
+- `{{ cookiecutter.python_version.replace(".", "") }}` - Python version without dots (e.g., "310")
+- `{{ cookiecutter.open_source_license }}` - The chosen open source license
 
 ### Adding New Templates
 

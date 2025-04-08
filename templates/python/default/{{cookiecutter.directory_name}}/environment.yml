@@ -1,9 +1,9 @@
-name: %PROJECT_NAME%
+name: {{ cookiecutter.project_slug }}
 channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=%PYTHON_VERSION%
+  - python={{ cookiecutter.python_version }}
   - pip
   - jupyterlab
   - matplotlib-base

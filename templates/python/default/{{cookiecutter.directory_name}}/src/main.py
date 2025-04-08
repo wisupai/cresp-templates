@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Main entry point for %PROJECT_NAME%.
+Main entry point for {{ cookiecutter.project_name }}.
 
 This module demonstrates basic scientific computing capabilities
 and serves as a starting point for your project.
@@ -88,7 +88,7 @@ def visualize_data(data):
 def main():
     """Main function."""
     print("=" * 50)
-    print(f"Running %PROJECT_NAME%")
+    print(f"Running {{ cookiecutter.project_name }}")
     print("=" * 50)
     
     # Load or generate data

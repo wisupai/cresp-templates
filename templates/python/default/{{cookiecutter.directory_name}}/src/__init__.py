@@ -1,5 +1,5 @@
 """
-%PROJECT_NAME% - A scientific computing project created with CRESP
+{{ cookiecutter.project_name }} - {{ cookiecutter.project_description }}
 
 This package provides a structured environment for reproducible scientific computing.
 """
